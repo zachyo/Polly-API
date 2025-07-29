@@ -13,7 +13,7 @@ class UserOut(BaseModel):
     username: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class Token(BaseModel):
@@ -32,4 +32,4 @@ class PollOut(BaseModel):
     owner_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
