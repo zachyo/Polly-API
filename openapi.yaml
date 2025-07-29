@@ -1,0 +1,162 @@
+openapi: 3.0.3
+info:
+  title: Polly-API
+  version: 1.0.0
+  description: API for a poll application with user registration, login, and poll management.
+servers:
+  - url: http://localhost:8000
+paths:
+  /register:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserCreate"
+      responses:
+        "200":
+          description: User registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserOut"
+        "400":
+          description: Username already registered
+  /login:
+    post:
+      summary: Login and get JWT token
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+              required:
+                - username
+                - password
+      responses:
+        "200":
+          description: JWT token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Token"
+        "400":
+          description: Incorrect username or password
+  /polls:
+    get:
+      summary: Get all polls
+      parameters:
+        - in: query
+          name: skip
+          schema:
+            type: integer
+          description: Number of items to skip
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Max number of items to return
+      responses:
+        "200":
+          description: List of polls
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PollOut"
+    post:
+      summary: Create a new poll
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PollCreate"
+      responses:
+        "200":
+          description: Poll created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PollOut"
+        "401":
+          description: Unauthorized
+  /polls/{poll_id}:
+    delete:
+      summary: Delete a poll
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: poll_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Poll deleted
+        "401":
+          description: Unauthorized
+        "404":
+          description: Poll not found or not authorized
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    UserCreate:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required:
+        - username
+        - password
+    UserOut:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+    Token:
+      type: object
+      properties:
+        access_token:
+          type: string
+        token_type:
+          type: string
+    PollCreate:
+      type: object
+      properties:
+        question:
+          type: string
+      required:
+        - question
+    PollOut:
+      type: object
+      properties:
+        id:
+          type: integer
+        question:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        owner_id:
+          type: integer
