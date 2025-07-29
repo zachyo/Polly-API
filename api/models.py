@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
-from datetime import datetime
+from datetime import datetime, UTC
 from .database import Base
 
 
@@ -16,6 +16,6 @@ class Poll(Base):
     __tablename__ = "polls"
     id = Column(Integer, primary_key=True, index=True)
     question = Column(String, index=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(UTC))
     owner_id = Column(Integer, ForeignKey("users.id"))
     owner = relationship("User", back_populates="polls")
