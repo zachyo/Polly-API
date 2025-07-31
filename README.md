@@ -1,11 +1,14 @@
 # Polly-API: FastAPI Poll Application
 
-A simple poll application built with FastAPI, SQLite, and JWT authentication. Users can register, log in, create, retrieve, and delete polls. The project follows best practices with modular code in the `api/` directory.
+A simple poll application built with FastAPI, SQLite, and JWT authentication. Users can register, log in, create, retrieve, vote on, and delete polls. The project follows best practices with modular code in the `api/` directory.
 
 ## Features
 
 - User registration and login (JWT authentication)
 - Create, retrieve, and delete polls
+- Add options to polls (minimum of two options required)
+- Vote on polls (authenticated users only)
+- View poll results with vote counts
 - SQLite database with SQLAlchemy ORM
 - Modular code structure for maintainability
 
@@ -130,11 +133,54 @@ The API will be available at `http://127.0.0.1:8000`.
 
 ```json
 {
-  "question": "Your poll question"
+  "question": "Your poll question",
+  "options": ["Option 1", "Option 2"]
 }
 ```
 
-### 5. Delete a poll
+### 5. Get a specific poll
+
+- **Endpoint:** `GET /polls/{poll_id}`
+- **Authentication:** Not required
+
+### 6. Vote on a poll
+
+- **Endpoint:** `POST /polls/{poll_id}/vote`
+- **Headers:** `Authorization: Bearer <access_token>`
+- **Body:**
+
+```json
+{
+  "option_id": 1
+}
+```
+
+### 7. Get poll results
+
+- **Endpoint:** `GET /polls/{poll_id}/results`
+- **Authentication:** Not required
+- **Response:**
+
+```json
+{
+  "poll_id": 1,
+  "question": "Your poll question",
+  "results": [
+    {
+      "option_id": 1,
+      "text": "Option 1",
+      "vote_count": 3
+    },
+    {
+      "option_id": 2,
+      "text": "Option 2",
+      "vote_count": 1
+    }
+  ]
+}
+```
+
+### 8. Delete a poll
 
 - **Endpoint:** `DELETE /polls/{poll_id}`
 - **Headers:** `Authorization: Bearer <access_token>`
