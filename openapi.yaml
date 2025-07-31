@@ -93,6 +93,23 @@ paths:
         "401":
           description: Unauthorized
   /polls/{poll_id}:
+    get:
+      summary: Get a specific poll
+      parameters:
+        - in: path
+          name: poll_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Poll details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PollOut"
+        "404":
+          description: Poll not found
     delete:
       summary: Delete a poll
       security:
@@ -110,6 +127,52 @@ paths:
           description: Unauthorized
         "404":
           description: Poll not found or not authorized
+  /polls/{poll_id}/vote:
+    post:
+      summary: Vote on a poll
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: poll_id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VoteCreate"
+      responses:
+        "200":
+          description: Vote recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VoteOut"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Poll or option not found
+  /polls/{poll_id}/results:
+    get:
+      summary: Get poll results
+      parameters:
+        - in: path
+          name: poll_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Poll results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PollResults"
+        "404":
+          description: Poll not found
 components:
   securitySchemes:
     bearerAuth:
@@ -141,13 +204,27 @@ components:
           type: string
         token_type:
           type: string
+    OptionOut:
+      type: object
+      properties:
+        id:
+          type: integer
+        text:
+          type: string
+        poll_id:
+          type: integer
     PollCreate:
       type: object
       properties:
         question:
           type: string
+        options:
+          type: array
+          items:
+            type: string
       required:
         - question
+        - options
     PollOut:
       type: object
       properties:
@@ -160,3 +237,44 @@ components:
           format: date-time
         owner_id:
           type: integer
+        options:
+          type: array
+          items:
+            $ref: "#/components/schemas/OptionOut"
+    VoteCreate:
+      type: object
+      properties:
+        option_id:
+          type: integer
+      required:
+        - option_id
+    VoteOut:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        option_id:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+    PollResults:
+      type: object
+      properties:
+        poll_id:
+          type: integer
+        question:
+          type: string
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              option_id:
+                type: integer
+              text:
+                type: string
+              vote_count:
+                type: integer
